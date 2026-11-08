@@ -1,199 +1,174 @@
 # Yeager Adoption
 
-A Django-based pet adoption and rescue platform where users can browse foundation pets available for adoption, submit adoption requests, and post their own pets for rehoming through a community board. Administrators manage the foundation pets and requests through the Django admin panel.
+A Django web application where users can browse foundation pets available for adoption, submit adoption requests, and post their own pets through a community rehoming board. Foundation pets and incoming requests are managed through the Django admin interface.
 
-## Features
+## Overview
 
-### User Authentication
+The platform contains two types of adoption listings:
 
-- Register with username, full name, email, phone number, and password
-- Login and logout
-- Profile page with adoption history, community posts, and favorites
-- Edit profile including phone number, bio, and location
+1. Foundation Pets: Official pets managed by Yeager Adoption that appear on the homepage and the main Browse Pets page.
+2. Community Posts: Rehoming posts created by registered users on the community board.
 
-### Foundation Pet Browsing (Yeager Adoption Managed Pets)
+## How to Add Foundation Pets (Homepage Listings)
 
-- Browse all foundation pets with name, image, type, breed, age, gender, location, description, and status
-- Search by name, breed, or type
-- Filter by animal type, gender, location, and adoption status
-- Paginated listings (9 per page)
-- Favorite pets with one click
+Foundation pets displayed on the homepage and Browse Pets page are added through the Django admin site.
 
-### Adoption Requests (Foundation Pets)
+### Step 1: Create or promote an admin account
 
-- Logged-in users can apply to adopt available foundation pets
-- Application includes address, phone, reason, previous pet experience, and optional message
-- Dashboard showing all personal adoption requests with status (Pending / Approved / Rejected)
+Run the following command to create a superuser:
 
-### Community Adoption Board
-
-Users can post their own pets that need rehoming, and other users can browse these community posts and reach out.
-
-**Posting a pet:**
-- Post pet name, animal type, breed, age, gender, location, description, and an optional photo
-- Posts are visible to all visitors
-- Authors can edit, delete, or mark a post as "Given for Adoption"
-
-**Requesting a community pet:**
-- Logged-in users can send an adoption request to any open post (not their own)
-- Request includes a message, phone number, and address
-- One request per user per post
-
-**Managing requests (post author):**
-- Authors see all requests on a dedicated inquiries page
-- Full contact info is shown: requester phone, email, and address
-- Authors can update request status: Pending, Contacted, or Rejected
-- Authors can visit a requester's public profile to learn more about them
-
-**Public profiles:**
-- Any logged-in user can view another user's public profile
-- Shows name, location, bio, phone number, email, and active posts
-- Contact info is only visible to logged-in users
-
-**Post lifecycle:**
-- Mark a post as "Given for Adoption" to close it without deleting it
-- Or delete the post outright (this removes all associated requests too)
-
-### Admin Features
-
-Managed entirely through the Django admin panel at `/admin/`
-
-- Add, edit, delete, and manage foundation pets
-- Upload pet images and change adoption status
-- View and manage all foundation adoption requests
-- Approve or reject requests (approved requests auto-mark the pet as Adopted)
-- Manage community posts and inquiries
-
-### Business Logic
-
-- Only foundation pets with status "Available" can receive new adoption requests
-- A user cannot submit more than one active (Pending or Approved) request for the same foundation pet
-- When a foundation adoption request is approved, the pet is automatically marked as Adopted
-- A user cannot submit an inquiry for their own community post
-- A user can only submit one inquiry per community post
-
-### REST API
-
-Built with Django REST Framework. Base URL: `/api/`
-
-**Pets**
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/pets/` | List all pets |
-| GET | `/api/pets/<id>/` | Get a specific pet |
-| POST | `/api/pets/` | Create a pet (admin only) |
-| PUT | `/api/pets/<id>/` | Update a pet (admin only) |
-| DELETE | `/api/pets/<id>/` | Delete a pet (admin only) |
-
-Search and filtering:
-
-```
-GET /api/pets/?search=golden
-GET /api/pets/?animal_type=Dog
-GET /api/pets/?gender=Male
-GET /api/pets/?status=Available
-GET /api/pets/?page=2
-```
-
-**Adoptions** (authentication required)
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/adoptions/` | List your adoption requests |
-| POST | `/api/adoptions/` | Submit a new adoption request |
-| GET | `/api/adoptions/<id>/` | Get a specific request |
-| PUT | `/api/adoptions/<id>/` | Update a request |
-
-**Token Authentication**
-
-```
-POST /api/auth/token/
-```
-
-Send username and password in the request body. Use the returned token in subsequent requests:
-
-```
-Authorization: Token <your-token>
-```
-
-## Tech Stack
-
-- Python 3.14
-- Django 6.0
-- Django REST Framework 3.18
-- SQLite (default database)
-- Pillow (image handling)
-- django-filter (API filtering)
-
-## Installation and Setup
-
-Clone the repository:
-
-```
-git clone <repository-url>
-cd yeager_adoption
-```
-
-Install dependencies:
-
-```
-pip install -r requirements.txt
-```
-
-Apply database migrations:
-
-```
-python manage.py migrate
-```
-
-Create a superuser for admin access:
-
-```
+```bash
 python manage.py createsuperuser
 ```
 
-Start the development server:
+Enter your username, email address, and password.
 
+If you already have a registered account and want to grant it admin access, run:
+
+```bash
+python manage.py shell
 ```
-python manage.py runserver
+
+Then execute:
+
+```python
+from django.contrib.auth.models import User
+user = User.objects.get(username="your_username")
+user.is_staff = True
+user.is_superuser = True
+user.save()
+exit()
 ```
 
-Open your browser and go to `http://127.0.0.1:8000/`
+### Step 2: Add pets in Django Admin
 
-The admin panel is available at `http://127.0.0.1:8000/admin/`
+1. Start the server with `python manage.py runserver`.
+2. Open your browser and navigate to `http://127.0.0.1:8000/admin/`.
+3. Log in with your admin credentials.
+4. Locate the Pets section and click Add Pet.
+5. Provide the pet details:
+   * Name
+   * Animal type (Dog, Cat, Bird, Rabbit, Other)
+   * Breed
+   * Age in years
+   * Gender (Male, Female)
+   * Location
+   * Description
+   * Image file (optional)
+   * Status (Available, Adopted)
+6. Click Save.
 
-The community board is at `http://127.0.0.1:8000/community/`
+The new pet will appear immediately on the homepage at `http://127.0.0.1:8000/` and under Browse Pets at `http://127.0.0.1:8000/pets/`.
+
+Foundation pets can also be created programmatically via the REST API endpoint `POST /api/pets/` by authenticating with an admin user token.
+
+## Features
+
+### Authentication
+
+* Registration requires username, full name, email, phone number, and password.
+* Login and logout handling with session cookies.
+* User profile page displaying foundation adoption requests, community posts, and favorite pets.
+* Profile edit page allowing users to update phone number, location, bio, and name.
+
+### Foundation Pet Browsing
+
+* Listings show pet name, image, type, breed, age, gender, location, description, and adoption status.
+* Search by name, breed, or animal type.
+* Filter by animal type, gender, location, and status.
+* Pagination set to 9 pets per page.
+* One-click favorite button with asynchronous saving.
+
+### Foundation Adoption Requests
+
+* Logged in users can submit an application for any available pet.
+* Application fields: phone, address, reason for adoption, previous pet experience, optional message.
+* Dashboard at `/adoptions/my-requests/` tracks application status.
+* Rule 1: Adopted pets cannot receive new requests.
+* Rule 2: A user cannot submit multiple active requests for the same pet.
+* Rule 3: When an admin marks an application as Approved in Django Admin, the pet status automatically switches to Adopted and subsequent requests are blocked.
+
+### Community Adoption Board
+
+* Located at `/community/`.
+* Any registered user can publish a post for a pet needing a new home.
+* Post fields include name, animal type, breed, age, gender, location, description, and an optional photo.
+* Other users can send an adoption inquiry with their phone number, address, and message.
+* Post authors receive inquiries on a dedicated page with full contact details to get in touch.
+* Post authors can update inquiry status to Pending, Contacted, or Rejected.
+* Post authors can visit the applicant profile to view their information.
+* Authors can mark their post as Given for Adoption or delete the post completely.
+* Public profile page for every user at `/community/user/<username>/`.
+
+### REST API
+
+The application provides a REST API built with Django REST Framework under `/api/`.
+
+Pets endpoints:
+* GET `/api/pets/` (List all pets, supports search and filtering)
+* GET `/api/pets/<id>/` (Pet detail)
+* POST `/api/pets/` (Create pet, admin only)
+* PUT `/api/pets/<id>/` (Update pet, admin only)
+* DELETE `/api/pets/<id>/` (Delete pet, admin only)
+
+Adoption request endpoints:
+* GET `/api/adoptions/` (List requests submitted by the authenticated user)
+* POST `/api/adoptions/` (Submit new adoption request)
+* GET `/api/adoptions/<id>/` (View request detail)
+* PUT `/api/adoptions/<id>/` (Update request)
+
+Authentication endpoint:
+* POST `/api/auth/token/` (Submit username and password to obtain an authentication token)
+
+## Technology Stack
+
+* Python 3.14
+* Django 6.0
+* Django REST Framework 3.18
+* SQLite database
+* Pillow for image processing
+* django-filter for API query filtering
+
+## Setup Instructions
+
+1. Clone or download the repository to your machine.
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Run database migrations:
+   ```bash
+   python manage.py migrate
+   ```
+4. Create an administrator account:
+   ```bash
+   python manage.py createsuperuser
+   ```
+5. Start the development server:
+   ```bash
+   python manage.py runserver
+   ```
+6. Access the site:
+   * Main website: `http://127.0.0.1:8000/`
+   * Community board: `http://127.0.0.1:8000/community/`
+   * Django admin: `http://127.0.0.1:8000/admin/`
+   * REST API root: `http://127.0.0.1:8000/api/`
 
 ## Project Structure
 
-```
-yeager_adoption/
-    accounts/           User authentication, profiles, and phone numbers
-    adoptions/          Foundation pet adoption requests
-    community/          Community adoption posts and inquiries
-    pets/               Foundation pet listings, detail pages, favorites
-    yeager_adoption/    Project settings and main URLs
-    templates/          HTML templates
-    static/             CSS and JavaScript files
-    media/              Uploaded images
-    manage.py
-    requirements.txt
-    README.md
-```
+* `accounts/`: User registration, profile views, and profile models.
+* `pets/`: Foundation pet models, pet browsing views, search, and favorites.
+* `adoptions/`: Foundation adoption request handling and dashboard.
+* `community/`: User-submitted pet posts, adoption inquiries, and public profiles.
+* `yeager_adoption/`: Project settings, root URL configuration, WSGI/ASGI handlers.
+* `templates/`: HTML templates for all apps.
+* `static/`: CSS stylesheet and JavaScript scripts.
+* `media/`: User-uploaded pet and post photos.
 
 ## Currency
 
-All adoption fees are displayed in BDT (Bangladeshi Taka).
+All adoption fees across the foundation listings are indicated in BDT (Bangladeshi Taka).
 
-## Dark and Light Mode
+## Theme Support
 
-The UI supports both dark and light themes. The preference is saved in the browser and also respects the system preference automatically. Users can toggle between modes using the button in the navigation bar.
-
-## Notes
-
-- Migrations are included in the repository
-- The project uses Django's built-in User model extended with a UserProfile model for phone, bio, and location
-- Phone numbers collected at registration are shown on public profiles to logged-in users for contact purposes
-- Token authentication is available for API consumers
-- Pet and community post images are stored in the `media/` directory
+The application includes light and dark display modes. Users can toggle modes using the button in the top navigation bar. Preferences persist in the browser and default to the operating system setting.
