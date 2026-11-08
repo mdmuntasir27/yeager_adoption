@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - Yeager Adoption{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <h2>Welcome Back</h2>
+        <p class="auth-subtitle">Log in to continue to Yeager Adoption</p>
+
+        <form method="post" class="form-stack">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" name="username" class="form-control" placeholder="Your username" required autofocus>
+                {% if form.username.errors %}<ul class="errorlist">{% for e in form.username.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" name="password" class="form-control" placeholder="Your password" required>
+                {% if form.password.errors %}<ul class="errorlist">{% for e in form.password.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-error">
+                    {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                </div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary btn-block">Login</button>
+        </form>
+
+        <hr class="divider">
+        <p class="text-center text-muted" style="font-size:0.875rem;">
+            Don't have an account? <a href="{% url 'register' %}" style="color:var(--primary-light);">Register here</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
+

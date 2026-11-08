@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - Yeager Adoption{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="mt-2 mb-3 profile-layout">
+        <!-- Sidebar -->
+        <div class="profile-sidebar">
+            <div class="profile-avatar">
+                {{ user.username|first|upper }}
+            </div>
+            <div class="profile-username">{{ user.get_full_name|default:user.username }}</div>
+            {% if user.get_full_name %}
+                <div class="profile-email">@{{ user.username }}</div>
+            {% endif %}
+            <div class="profile-email">{{ user.email }}</div>
+            <hr class="divider">
+            <div style="font-size:0.82rem; color:var(--text-muted);">
+                Member since {{ user.date_joined|date:"M Y" }}
+            </div>
+            <div class="mt-2">
+                <a href="{% url 'my_requests' %}" class="btn btn-primary btn-sm btn-block">My Requests</a>
+            </div>
+            <div class="mt-1">
+                <a href="{% url 'pet_list' %}" class="btn btn-sm btn-block" style="background:var(--border); color:var(--text);">Browse Pets</a>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <div>
+            <!-- Recent requests -->
+            <div class="card mb-2">
+                <div class="card-header">Recent Adoption Requests</div>
+                <div class="card-body" style="padding:0;">
+                    {% if recent_requests %}
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Pet</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for req in recent_requests %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'pet_detail' req.pet.pk %}" style="color:var(--primary-light); text-decoration:none; font-weight:600;">
+                                            {{ req.pet.name }}
+                                        </a>
+                                    </td>
+                                    <td>{{ req.created_at|date:"d M Y" }}</td>
+                                    <td><span class="badge badge-{{ req.status|lower }}">{{ req.status }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <div style="padding:0.75rem 1rem;">
+                            <a href="{% url 'my_requests' %}" class="btn btn-sm btn-primary">View All Requests</a>
+                        </div>
+                    {% else %}
+                        <div style="padding:2rem; text-align:center; color:var(--text-muted);">
+                            No adoption requests yet.
+                            <br>
+                            <a href="{% url 'pet_list' %}" class="btn btn-primary btn-sm mt-2">Browse Pets</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Favorites -->
+            <div class="card">
+                <div class="card-header">Favorite Pets</div>
+                <div class="card-body">
+                    {% if favorite_pets %}
+                        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap:1rem;">
+                            {% for fav in favorite_pets %}
+                            <a href="{% url 'pet_detail' fav.pet.pk %}" style="text-decoration:none;">
+                                <div style="text-align:center; background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:0.75rem; transition:transform 0.2s;">
+                                    <div style="font-size:2rem; margin-bottom:0.5rem;">
+                                        {% if fav.pet.animal_type == 'Dog' %}🐕{% elif fav.pet.animal_type == 'Cat' %}🐈{% elif fav.pet.animal_type == 'Bird' %}🐦{% elif fav.pet.animal_type == 'Rabbit' %}🐇{% else %}🐾{% endif %}
+                                    </div>
+                                    <div style="font-weight:600; font-size:0.9rem; color:var(--text);">{{ fav.pet.name }}</div>
+                                    <div style="font-size:0.75rem; color:var(--text-muted);">{{ fav.pet.animal_type }}</div>
+                                    <span class="badge badge-{{ fav.pet.status|lower }}" style="margin-top:0.3rem;">{{ fav.pet.status }}</span>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center">No favorite pets yet. Click the heart button on any pet to save it here.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

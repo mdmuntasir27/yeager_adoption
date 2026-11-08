@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Yeager Adoption{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script src="{% static 'js/main.js' %}"></script>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="navbar-inner">
+        <a class="navbar-brand" href="{% url 'home' %}">
+            <span class="paw-icon">🐾</span>
+            Yeager Adoption
+        </a>
+
+        <button class="nav-hamburger" id="nav-hamburger" aria-label="Toggle navigation">&#9776;</button>
+
+        <ul class="nav-links" id="nav-links">
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li><a href="{% url 'pet_list' %}">Browse Pets</a></li>
+            {% if user.is_authenticated %}
+                <li><a href="{% url 'my_requests' %}">My Requests</a></li>
+                <li><a href="{% url 'profile' %}">Profile</a></li>
+            {% endif %}
+        </ul>
+
+        <div class="nav-actions">
+            <button class="theme-toggle" id="theme-toggle" title="Toggle theme">☾</button>
+            {% if user.is_authenticated %}
+                <span style="color: rgba(255,255,255,0.7); font-size: 0.85rem;">Hi, {{ user.username }}</span>
+                <a href="{% url 'logout' %}" class="btn btn-outline btn-sm">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn btn-outline btn-sm">Login</a>
+                <a href="{% url 'register' %}" class="btn btn-primary btn-sm">Register</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+{% if messages %}
+<div class="messages-container">
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {% if message.tags == 'success' %}✓{% elif message.tags == 'error' %}✗{% elif message.tags == 'warning' %}⚠{% else %}ℹ{% endif %}
+            {{ message }}
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<footer>
+    <div class="footer-inner">
+        <div class="footer-brand">🐾 Yeager Adoption</div>
+        <div class="footer-text">
+            Connecting pets with loving families &middot; Currency: BDT (Bangladeshi Taka)
+        </div>
+        <div class="footer-text">&copy; 2024 Yeager Adoption Foundation. All rights reserved.</div>
+    </div>
+</footer>
+
+</body>
+</html>
+

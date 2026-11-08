@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ pet.name }} - Yeager Adoption{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="mt-2 mb-2">
+        <a href="{% url 'pet_list' %}" style="color:var(--primary-light); text-decoration:none; font-size:0.9rem;">
+            &larr; Back to Pets
+        </a>
+    </div>
+
+    <div class="pet-detail-layout">
+        <!-- Left: Image -->
+        <div>
+            {% if pet.image %}
+                <img src="{{ pet.image.url }}" alt="{{ pet.name }}" class="pet-detail-img">
+            {% else %}
+                <div class="pet-detail-img-placeholder">
+                    {% if pet.animal_type == 'Dog' %}🐕{% elif pet.animal_type == 'Cat' %}🐈{% elif pet.animal_type == 'Bird' %}🐦{% elif pet.animal_type == 'Rabbit' %}🐇{% else %}🐾{% endif %}
+                </div>
+            {% endif %}
+
+            {% if pet.description %}
+            <div class="pet-description mt-2">
+                <h3>About {{ pet.name }}</h3>
+                <p style="line-height:1.6; font-size:0.95rem;">{{ pet.description }}</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Right: Info -->
+        <div class="pet-detail-info">
+            <div class="d-flex align-center gap-1 mb-1">
+                <span class="badge badge-{{ pet.status|lower }}">{{ pet.status }}</span>
+            </div>
+            <h1>{{ pet.name }}</h1>
+
+            <table class="info-table">
+                <tr>
+                    <td>Animal Type</td>
+                    <td>{{ pet.animal_type }}</td>
+                </tr>
+                <tr>
+                    <td>Breed</td>
+                    <td>{% if pet.breed %}{{ pet.breed }}{% else %}Unknown{% endif %}</td>
+                </tr>
+                <tr>
+                    <td>Age</td>
+                    <td>{{ pet.age }} year{% if pet.age != 1 %}s{% endif %}</td>
+                </tr>
+                <tr>
+                    <td>Gender</td>
+                    <td>{{ pet.gender }}</td>
+                </tr>
+                <tr>
+                    <td>Location</td>
+                    <td>📍 {{ pet.location }}</td>
+                </tr>
+                <tr>
+                    <td>Added on</td>
+                    <td>{{ pet.created_at|date:"d M Y" }}</td>
+                </tr>
+            </table>
+
+            <div style="margin-top: 1.25rem;">
+                {% if pet.is_available %}
+                    {% if user.is_authenticated %}
+                        {% if already_applied %}
+                            <div class="alert alert-info">
+                                You already have an active adoption request for {{ pet.name }}.
+                            </div>
+                        {% else %}
+                            <a href="{% url 'apply_adoption' pet.pk %}" class="btn btn-primary btn-block">
+                                🐾 Apply for Adoption
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-info">
+                            <a href="{% url 'login' %}?next={% url 'pet_detail' pet.pk %}" style="color:inherit; font-weight:600;">Login</a> to apply for adoption.
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="adopted-notice">
+                        ✗ This pet has already been adopted.
+                    </div>
+                {% endif %}
+            </div>
+
+            {% if user.is_authenticated %}
+            <div class="mt-2">
+                <button
+                    class="btn-favorite favorite-btn {% if is_favorite %}active{% endif %}"
+                    data-pet-id="{{ pet.pk }}"
+                    style="width:100%; justify-content:center;"
+                >
+                    ♥ <span class="fav-text">{% if is_favorite %}Remove from Favorites{% else %}Add to Favorites{% endif %}</span>
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+

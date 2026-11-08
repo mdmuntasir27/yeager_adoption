@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}My Adoption Requests - Yeager Adoption{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header mt-2">
+        <h1>My Adoption Requests</h1>
+        <p>Track the status of all your adoption applications</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-bar">
+        <div class="stat-item">
+            <span class="stat-number">{{ requests|length }}</span>
+            <span class="stat-label">Total</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">{{ requests|dictsort:"status"|length }}</span>
+            <span class="stat-label">Applications</span>
+        </div>
+    </div>
+
+    {% if requests %}
+        <div class="card">
+            <div class="card-header">Applications</div>
+            <div style="overflow-x: auto;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Pet</th>
+                            <th>Type</th>
+                            <th>Applied On</th>
+                            <th>Phone</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in requests %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-center gap-1">
+                                    {% if req.pet.image %}
+                                        <img src="{{ req.pet.image.url }}" alt="{{ req.pet.name }}"
+                                             style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
+                                    {% else %}
+                                        <div style="width:36px; height:36px; border-radius:50%; background:var(--accent-light); display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
+                                            {% if req.pet.animal_type == 'Dog' %}🐕{% elif req.pet.animal_type == 'Cat' %}🐈{% elif req.pet.animal_type == 'Bird' %}🐦{% elif req.pet.animal_type == 'Rabbit' %}🐇{% else %}🐾{% endif %}
+                                        </div>
+                                    {% endif %}
+                                    <strong>{{ req.pet.name }}</strong>
+                                </div>
+                            </td>
+                            <td>{{ req.pet.animal_type }}</td>
+                            <td>{{ req.created_at|date:"d M Y" }}</td>
+                            <td>{{ req.phone }}</td>
+                            <td><span class="badge badge-{{ req.status|lower }}">{{ req.status }}</span></td>
+                            <td>
+                                <a href="{% url 'pet_detail' req.pet.pk %}" class="btn btn-sm btn-primary">View Pet</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📋</div>
+            <h3>No adoption requests yet</h3>
+            <p>Browse pets and submit an adoption application to see it here.</p>
+            <a href="{% url 'pet_list' %}" class="btn btn-primary mt-2">Browse Pets</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+

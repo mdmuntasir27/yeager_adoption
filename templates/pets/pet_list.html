@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Pets - Yeager Adoption{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>Find Your Perfect Companion</h1>
+    <p>Browse pets available for adoption and give them a loving home</p>
+</div>
+
+<div class="container">
+    <!-- Search & Filter -->
+    <div class="filter-card">
+        <h3>Search & Filter</h3>
+        <form method="get" action="">
+            <div class="filter-row">
+                <div class="form-group">
+                    <label class="form-label">Search</label>
+                    <input type="text" name="q" class="form-control" placeholder="Name, breed..." value="{{ query }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Animal Type</label>
+                    <select name="animal_type" class="form-control">
+                        <option value="">All Types</option>
+                        {% for val, label in animal_type_choices %}
+                            <option value="{{ val }}" {% if animal_type == val %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Gender</label>
+                    <select name="gender" class="form-control">
+                        <option value="">Any</option>
+                        {% for val, label in gender_choices %}
+                            <option value="{{ val }}" {% if gender == val %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Location</label>
+                    <input type="text" name="location" class="form-control" placeholder="City..." value="{{ location }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-control">
+                        <option value="">All</option>
+                        {% for val, label in status_choices %}
+                            <option value="{{ val }}" {% if status == val %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </div>
+            {% if query or animal_type or gender or location or status %}
+                <div class="mt-1">
+                    <a href="{% url 'pet_list' %}" class="btn btn-sm" style="background:var(--border); color:var(--text);">Clear Filters</a>
+                </div>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Results count -->
+    <div class="d-flex align-center gap-2 mb-2" style="flex-wrap:wrap; justify-content:space-between;">
+        <p class="text-muted" style="font-size:0.9rem;">
+            Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count }} pets
+        </p>
+        {% if query or animal_type or gender or location or status %}
+            <span class="badge badge-available">Filtered results</span>
+        {% endif %}
+    </div>
+
+    <!-- Pet grid -->
+    {% if page_obj.object_list %}
+        <div class="pet-grid">
+            {% for pet in page_obj.object_list %}
+            <div class="pet-card">
+                <a href="{% url 'pet_detail' pet.pk %}">
+                    {% if pet.image %}
+                        <img src="{{ pet.image.url }}" alt="{{ pet.name }}" class="pet-card-img">
+                    {% else %}
+                        <div class="pet-card-img-placeholder">
+                            {% if pet.animal_type == 'Dog' %}🐕{% elif pet.animal_type == 'Cat' %}🐈{% elif pet.animal_type == 'Bird' %}🐦{% elif pet.animal_type == 'Rabbit' %}🐇{% else %}🐾{% endif %}
+                        </div>
+                    {% endif %}
+                </a>
+                <div class="pet-card-body">
+                    <a class="pet-card-title" href="{% url 'pet_detail' pet.pk %}">{{ pet.name }}</a>
+                    <div class="pet-card-meta">
+                        <span>{{ pet.animal_type }}</span>
+                        {% if pet.breed %}<span>&middot; {{ pet.breed }}</span>{% endif %}
+                        <span>&middot; {{ pet.age }} yr{% if pet.age != 1 %}s{% endif %}</span>
+                        <span>&middot; {{ pet.gender }}</span>
+                        <span>&middot; 📍 {{ pet.location }}</span>
+                    </div>
+                    {% if pet.description %}
+                        <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.25rem;">
+                            {{ pet.description|truncatechars:80 }}
+                        </p>
+                    {% endif %}
+                </div>
+                <div class="pet-card-footer">
+                    <span class="badge badge-{{ pet.status|lower }}">{{ pet.status }}</span>
+                    <div class="d-flex gap-1">
+                        {% if user.is_authenticated %}
+                            <button
+                                class="btn-favorite favorite-btn {% if pet.pk in favorite_pet_ids %}active{% endif %}"
+                                data-pet-id="{{ pet.pk }}"
+                            >
+                                ♥ <span class="fav-text">{% if pet.pk in favorite_pet_ids %}Unfavorite{% else %}Favorite{% endif %}</span>
+                            </button>
+                        {% endif %}
+                        <a href="{% url 'pet_detail' pet.pk %}" class="btn btn-primary btn-sm">Details</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page=1{% if query %}&q={{ query }}{% endif %}{% if animal_type %}&animal_type={{ animal_type }}{% endif %}{% if gender %}&gender={{ gender }}{% endif %}{% if location %}&location={{ location }}{% endif %}{% if status %}&status={{ status }}{% endif %}">&laquo; First</a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if animal_type %}&animal_type={{ animal_type }}{% endif %}{% if gender %}&gender={{ gender }}{% endif %}{% if location %}&location={{ location }}{% endif %}{% if status %}&status={{ status }}{% endif %}">Prev</a>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <span class="current">{{ num }}</span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if animal_type %}&animal_type={{ animal_type }}{% endif %}{% if gender %}&gender={{ gender }}{% endif %}{% if location %}&location={{ location }}{% endif %}{% if status %}&status={{ status }}{% endif %}">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if animal_type %}&animal_type={{ animal_type }}{% endif %}{% if gender %}&gender={{ gender }}{% endif %}{% if location %}&location={{ location }}{% endif %}{% if status %}&status={{ status }}{% endif %}">Next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if animal_type %}&animal_type={{ animal_type }}{% endif %}{% if gender %}&gender={{ gender }}{% endif %}{% if location %}&location={{ location }}{% endif %}{% if status %}&status={{ status }}{% endif %}">Last &raquo;</a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">🔍</div>
+            <h3>No pets found</h3>
+            <p>Try adjusting your search filters or <a href="{% url 'pet_list' %}" style="color:var(--primary-light);">browse all pets</a>.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
