@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile - Yeager Adoption{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="mt-2 mb-2">
+        <a href="{% url 'profile' %}" style="color: var(--primary-light); text-decoration: none; font-size: 0.9rem;">
+            &larr; Back to Profile
+        </a>
+    </div>
+
+    <div style="max-width: 600px;">
+        <div class="page-header">
+            <h1>Edit Profile</h1>
+            <p>Keep your contact info up to date so other users can reach you</p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">Personal Information</div>
+            <div class="card-body">
+                <form method="post" class="form-stack">
+                    {% csrf_token %}
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                        <div class="form-group">
+                            <label class="form-label">First Name</label>
+                            {{ form.first_name }}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Last Name</label>
+                            {{ form.last_name }}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}<ul class="errorlist">{% for e in form.email.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        {{ form.phone }}
+                        <small class="text-muted">Visible to other logged-in users when viewing your profile.</small>
+                        {% if form.phone.errors %}<ul class="errorlist">{% for e in form.phone.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Location / City</label>
+                        {{ form.location }}
+                        {% if form.location.errors %}<ul class="errorlist">{% for e in form.location.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Bio</label>
+                        {{ form.bio }}
+                        {% if form.bio.errors %}<ul class="errorlist">{% for e in form.bio.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                    </div>
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-error">{{ form.non_field_errors }}</div>
+                    {% endif %}
+
+                    <div class="d-flex gap-1">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <a href="{% url 'profile' %}" class="btn" style="background: var(--border); color: var(--text);">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

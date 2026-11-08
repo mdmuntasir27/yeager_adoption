@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if action == 'Create' %}New Post{% else %}Edit Post{% endif %} - Yeager Adoption{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="mt-2 mb-2">
+        <a href="{% url 'community_home' %}" style="color: var(--primary-light); text-decoration: none; font-size: 0.9rem;">
+            &larr; Back to Community Board
+        </a>
+    </div>
+
+    <div class="page-header">
+        <h1>{% if action == 'Create' %}Post a Pet for Adoption{% else %}Edit Post{% endif %}</h1>
+        <p>{% if action == 'Create' %}Share details about the pet you are looking to rehome{% else %}Update your pet's information{% endif %}</p>
+    </div>
+
+    <div style="max-width: 720px;">
+        <div class="card">
+            <div class="card-header">Pet Details</div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" class="form-stack">
+                    {% csrf_token %}
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                        <div class="form-group">
+                            <label class="form-label">{{ form.pet_name.label }}</label>
+                            {{ form.pet_name }}
+                            {% if form.pet_name.errors %}<ul class="errorlist">{% for e in form.pet_name.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">{{ form.animal_type.label }}</label>
+                            {{ form.animal_type }}
+                            {% if form.animal_type.errors %}<ul class="errorlist">{% for e in form.animal_type.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                        <div class="form-group">
+                            <label class="form-label">{{ form.breed.label }}</label>
+                            {{ form.breed }}
+                            {% if form.breed.errors %}<ul class="errorlist">{% for e in form.breed.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">{{ form.age.label }}</label>
+                            {{ form.age }}
+                            {% if form.age.errors %}<ul class="errorlist">{% for e in form.age.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                        <div class="form-group">
+                            <label class="form-label">{{ form.gender.label }}</label>
+                            {{ form.gender }}
+                            {% if form.gender.errors %}<ul class="errorlist">{% for e in form.gender.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">{{ form.location.label }}</label>
+                            {{ form.location }}
+                            {% if form.location.errors %}<ul class="errorlist">{% for e in form.location.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">{{ form.description.label }}</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}<ul class="errorlist">{% for e in form.description.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                        <small class="text-muted">Include temperament, health, vaccination status, and reason for giving up for adoption.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">{{ form.image.label }}</label>
+                        {% if post and post.image %}
+                            <div style="margin-bottom: 0.5rem;">
+                                <img src="{{ post.image.url }}" alt="Current photo" style="height: 80px; border-radius: 8px; object-fit: cover;">
+                                <small class="text-muted" style="display: block; margin-top: 0.25rem;">Current photo. Upload a new one to replace it.</small>
+                            </div>
+                        {% endif %}
+                        {{ form.image }}
+                        {% if form.image.errors %}<ul class="errorlist">{% for e in form.image.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                    </div>
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-error">{{ form.non_field_errors }}</div>
+                    {% endif %}
+
+                    <div class="d-flex gap-1" style="margin-top: 0.5rem;">
+                        <button type="submit" class="btn btn-primary">
+                            {% if action == 'Create' %}Publish Post{% else %}Save Changes{% endif %}
+                        </button>
+                        <a href="{% if post %}{% url 'post_detail' post.pk %}{% else %}{% url 'community_home' %}{% endif %}"
+                           class="btn" style="background: var(--border); color: var(--text);">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

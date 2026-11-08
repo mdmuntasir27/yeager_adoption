@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
 
-{% block title %}Profile - Yeager Adoption{% endblock %}
+{% block title %}My Profile - Yeager Adoption{% endblock %}
 
 {% block content %}
 <div class="container">
     <div class="mt-2 mb-3 profile-layout">
+
         <!-- Sidebar -->
         <div class="profile-sidebar">
             <div class="profile-avatar">
@@ -15,24 +16,71 @@
                 <div class="profile-email">@{{ user.username }}</div>
             {% endif %}
             <div class="profile-email">{{ user.email }}</div>
+            {% if profile.phone %}
+                <div class="profile-email">📞 {{ profile.phone }}</div>
+            {% endif %}
+            {% if profile.location %}
+                <div class="profile-email">📍 {{ profile.location }}</div>
+            {% endif %}
+            {% if profile.bio %}
+                <hr class="divider">
+                <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; text-align: left;">{{ profile.bio }}</p>
+            {% endif %}
             <hr class="divider">
-            <div style="font-size:0.82rem; color:var(--text-muted);">
+            <div style="font-size: 0.82rem; color: var(--text-muted);">
                 Member since {{ user.date_joined|date:"M Y" }}
             </div>
             <div class="mt-2">
-                <a href="{% url 'my_requests' %}" class="btn btn-primary btn-sm btn-block">My Requests</a>
+                <a href="{% url 'edit_profile' %}" class="btn btn-primary btn-sm btn-block">Edit Profile</a>
             </div>
             <div class="mt-1">
-                <a href="{% url 'pet_list' %}" class="btn btn-sm btn-block" style="background:var(--border); color:var(--text);">Browse Pets</a>
+                <a href="{% url 'my_requests' %}" class="btn btn-sm btn-block" style="background: var(--border); color: var(--text);">
+                    Foundation Requests
+                </a>
+            </div>
+            <div class="mt-1">
+                <a href="{% url 'my_posts' %}" class="btn btn-sm btn-block" style="background: var(--border); color: var(--text);">
+                    My Community Posts
+                </a>
+            </div>
+            <div class="mt-1">
+                <a href="{% url 'my_inquiries' %}" class="btn btn-sm btn-block" style="background: var(--border); color: var(--text);">
+                    My Sent Requests
+                </a>
             </div>
         </div>
 
         <!-- Main content -->
         <div>
-            <!-- Recent requests -->
+            <!-- Stats row -->
+            <div class="stats-bar mb-2">
+                <div class="stat-item">
+                    <span class="stat-number">{{ recent_requests|length }}</span>
+                    <span class="stat-label">Foundation Requests</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{ my_posts|length }}</span>
+                    <span class="stat-label">My Posts</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{ my_inquiries|length }}</span>
+                    <span class="stat-label">Sent Requests</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{ favorite_pets|length }}</span>
+                    <span class="stat-label">Favorites</span>
+                </div>
+            </div>
+
+            <!-- Foundation adoption requests -->
             <div class="card mb-2">
-                <div class="card-header">Recent Adoption Requests</div>
-                <div class="card-body" style="padding:0;">
+                <div class="card-header">
+                    <div class="d-flex align-center gap-1" style="justify-content: space-between;">
+                        <span>Foundation Adoption Requests</span>
+                        <a href="{% url 'my_requests' %}" class="btn btn-sm btn-primary">View All</a>
+                    </div>
+                </div>
+                <div style="overflow-x: auto;">
                     {% if recent_requests %}
                         <table class="table">
                             <thead>
@@ -46,7 +94,7 @@
                                 {% for req in recent_requests %}
                                 <tr>
                                     <td>
-                                        <a href="{% url 'pet_detail' req.pet.pk %}" style="color:var(--primary-light); text-decoration:none; font-weight:600;">
+                                        <a href="{% url 'pet_detail' req.pet.pk %}" style="color: var(--primary-light); text-decoration: none; font-weight: 600;">
                                             {{ req.pet.name }}
                                         </a>
                                     </td>
@@ -56,15 +104,49 @@
                                 {% endfor %}
                             </tbody>
                         </table>
-                        <div style="padding:0.75rem 1rem;">
-                            <a href="{% url 'my_requests' %}" class="btn btn-sm btn-primary">View All Requests</a>
+                    {% else %}
+                        <div style="padding: 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.9rem;">
+                            No adoption requests yet. <a href="{% url 'pet_list' %}" style="color: var(--primary-light);">Browse pets</a>.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Community posts -->
+            <div class="card mb-2">
+                <div class="card-header">
+                    <div class="d-flex align-center gap-1" style="justify-content: space-between;">
+                        <span>My Community Posts</span>
+                        <a href="{% url 'create_post' %}" class="btn btn-sm btn-primary">+ New Post</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if my_posts %}
+                        <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+                            {% for post in my_posts %}
+                            <div class="d-flex align-center gap-1" style="justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--border); flex-wrap: wrap;">
+                                <div>
+                                    <a href="{% url 'post_detail' post.pk %}" style="font-weight: 600; color: var(--text); text-decoration: none;">
+                                        {{ post.pet_name }}
+                                    </a>
+                                    <span class="badge {% if post.status == 'Open' %}badge-available{% else %}badge-adopted{% endif %}" style="margin-left: 0.4rem;">
+                                        {{ post.get_status_display }}
+                                    </span>
+                                    <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.1rem;">
+                                        {{ post.request_count }} request{% if post.request_count != 1 %}s{% endif %} &middot; {{ post.created_at|date:"d M" }}
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <a href="{% url 'post_inquiries' post.pk %}" class="btn btn-sm btn-primary">Requests</a>
+                                    <a href="{% url 'edit_post' post.pk %}" class="btn btn-sm" style="background: var(--border); color: var(--text);">Edit</a>
+                                </div>
+                            </div>
+                            {% endfor %}
                         </div>
                     {% else %}
-                        <div style="padding:2rem; text-align:center; color:var(--text-muted);">
-                            No adoption requests yet.
-                            <br>
-                            <a href="{% url 'pet_list' %}" class="btn btn-primary btn-sm mt-2">Browse Pets</a>
-                        </div>
+                        <p class="text-muted text-center" style="font-size: 0.9rem;">
+                            No posts yet. <a href="{% url 'create_post' %}" style="color: var(--primary-light);">Post a pet for adoption.</a>
+                        </p>
                     {% endif %}
                 </div>
             </div>
@@ -74,22 +156,22 @@
                 <div class="card-header">Favorite Pets</div>
                 <div class="card-body">
                     {% if favorite_pets %}
-                        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap:1rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.75rem;">
                             {% for fav in favorite_pets %}
-                            <a href="{% url 'pet_detail' fav.pet.pk %}" style="text-decoration:none;">
-                                <div style="text-align:center; background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:0.75rem; transition:transform 0.2s;">
-                                    <div style="font-size:2rem; margin-bottom:0.5rem;">
+                            <a href="{% url 'pet_detail' fav.pet.pk %}" style="text-decoration: none;">
+                                <div style="text-align: center; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem; transition: transform 0.2s;">
+                                    <div style="font-size: 2rem; margin-bottom: 0.4rem;">
                                         {% if fav.pet.animal_type == 'Dog' %}🐕{% elif fav.pet.animal_type == 'Cat' %}🐈{% elif fav.pet.animal_type == 'Bird' %}🐦{% elif fav.pet.animal_type == 'Rabbit' %}🐇{% else %}🐾{% endif %}
                                     </div>
-                                    <div style="font-weight:600; font-size:0.9rem; color:var(--text);">{{ fav.pet.name }}</div>
-                                    <div style="font-size:0.75rem; color:var(--text-muted);">{{ fav.pet.animal_type }}</div>
-                                    <span class="badge badge-{{ fav.pet.status|lower }}" style="margin-top:0.3rem;">{{ fav.pet.status }}</span>
+                                    <div style="font-weight: 600; font-size: 0.85rem; color: var(--text);">{{ fav.pet.name }}</div>
+                                    <div style="font-size: 0.72rem; color: var(--text-muted);">{{ fav.pet.animal_type }}</div>
+                                    <span class="badge badge-{{ fav.pet.status|lower }}" style="margin-top: 0.3rem; font-size: 0.7rem;">{{ fav.pet.status }}</span>
                                 </div>
                             </a>
                             {% endfor %}
                         </div>
                     {% else %}
-                        <p class="text-muted text-center">No favorite pets yet. Click the heart button on any pet to save it here.</p>
+                        <p class="text-muted text-center" style="font-size: 0.9rem;">No favorites yet. Click the heart on any pet to save it here.</p>
                     {% endif %}
                 </div>
             </div>
@@ -97,4 +179,3 @@
     </div>
 </div>
 {% endblock %}
-

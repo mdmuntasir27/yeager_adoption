@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.pet_name }} - Community Post | Yeager Adoption{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="mt-2 mb-2">
+        <a href="{% url 'community_home' %}" style="color: var(--primary-light); text-decoration: none; font-size: 0.9rem;">
+            &larr; Back to Community Board
+        </a>
+    </div>
+
+    <div class="pet-detail-layout">
+        <!-- Left: Image + Author -->
+        <div>
+            {% if post.image %}
+                <img src="{{ post.image.url }}" alt="{{ post.pet_name }}" class="pet-detail-img">
+            {% else %}
+                <div class="pet-detail-img-placeholder">
+                    {% if post.animal_type == 'Dog' %}🐕{% elif post.animal_type == 'Cat' %}🐈{% elif post.animal_type == 'Bird' %}🐦{% elif post.animal_type == 'Rabbit' %}🐇{% else %}🐾{% endif %}
+                </div>
+            {% endif %}
+
+            <!-- Author card -->
+            <div class="card mt-2">
+                <div class="card-header">Posted By</div>
+                <div class="card-body">
+                    <div class="d-flex align-center gap-2">
+                        <div class="profile-avatar" style="width: 48px; height: 48px; font-size: 1.1rem; flex-shrink: 0;">
+                            {{ post.author.username|first|upper }}
+                        </div>
+                        <div>
+                            <div style="font-weight: 700;">{{ post.author.get_full_name|default:post.author.username }}</div>
+                            <div style="font-size: 0.82rem; color: var(--text-muted);">@{{ post.author.username }}</div>
+                            {% if post.author.profile.location %}
+                                <div style="font-size: 0.82rem; color: var(--text-muted);">📍 {{ post.author.profile.location }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <a href="{% url 'public_profile' post.author.username %}" class="btn btn-sm btn-primary btn-block">
+                            View Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            {% if post.description %}
+            <div class="pet-description mt-2">
+                <h3>About {{ post.pet_name }}</h3>
+                <p style="line-height: 1.65; font-size: 0.95rem;">{{ post.description }}</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Right: Details + Actions -->
+        <div class="pet-detail-info">
+            <div class="d-flex align-center gap-1 mb-1" style="justify-content: space-between; flex-wrap: wrap;">
+                <span class="badge {% if post.status == 'Open' %}badge-available{% else %}badge-adopted{% endif %}" style="font-size: 0.85rem; padding: 0.3rem 0.8rem;">
+                    {% if post.status == 'Open' %}Open for Adoption{% else %}Given for Adoption{% endif %}
+                </span>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">{{ post.created_at|date:"d M Y" }}</span>
+            </div>
+
+            <h1>{{ post.pet_name }}</h1>
+
+            <table class="info-table">
+                <tr>
+                    <td>Animal Type</td>
+                    <td>{{ post.animal_type }}</td>
+                </tr>
+                {% if post.breed %}
+                <tr>
+                    <td>Breed</td>
+                    <td>{{ post.breed }}</td>
+                </tr>
+                {% endif %}
+                {% if post.age %}
+                <tr>
+                    <td>Age</td>
+                    <td>{{ post.age }} year{% if post.age != 1 %}s{% endif %}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <td>Gender</td>
+                    <td>{{ post.gender }}</td>
+                </tr>
+                <tr>
+                    <td>Location</td>
+                    <td>📍 {{ post.location }}</td>
+                </tr>
+                <tr>
+                    <td>Requests</td>
+                    <td>{{ post.request_count }} adoption request{% if post.request_count != 1 %}s{% endif %}</td>
+                </tr>
+            </table>
+
+            <!-- Action buttons -->
+            <div style="margin-top: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                {% if user == post.author %}
+                    <!-- Owner actions -->
+                    <div class="alert alert-info" style="text-align: center;">
+                        This is your post. Manage it below.
+                    </div>
+                    <a href="{% url 'post_inquiries' post.pk %}" class="btn btn-primary btn-block">
+                        View Adoption Requests ({{ post.request_count }})
+                    </a>
+                    <a href="{% url 'edit_post' post.pk %}" class="btn btn-block" style="background: var(--border); color: var(--text); justify-content: center;">
+                        Edit Post
+                    </a>
+                    {% if post.is_open %}
+                        <form method="post" action="{% url 'mark_given' post.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-block" style="background: #0ea5e9; color: #fff; width: 100%; justify-content: center;">
+                                Mark as Given for Adoption
+                            </button>
+                        </form>
+                    {% endif %}
+                    <a href="{% url 'delete_post' post.pk %}" class="btn btn-danger btn-block" style="justify-content: center;">
+                        Delete Post
+                    </a>
+
+                {% elif post.is_open and user.is_authenticated %}
+                    <!-- Other logged-in users -->
+                    {% if already_inquired %}
+                        <div class="alert alert-success" style="text-align: center;">
+                            You have already sent a request for {{ post.pet_name }}.
+                        </div>
+                        {% if user_inquiry %}
+                            <div class="card" style="font-size: 0.85rem;">
+                                <div class="card-body" style="padding: 0.75rem 1rem;">
+                                    <strong>Your request status:</strong>
+                                    <span class="badge badge-{{ user_inquiry.status|lower }}">{{ user_inquiry.status }}</span>
+                                    {% if user_inquiry.status == 'Contacted' %}
+                                        <div class="mt-1" style="color: var(--primary-light);">
+                                            The owner has marked you as contacted. Check your contact info below.
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'submit_inquiry' post.pk %}" class="btn btn-primary btn-block" style="justify-content: center;">
+                            Request to Adopt {{ post.pet_name }}
+                        </a>
+                    {% endif %}
+
+                {% elif not post.is_open %}
+                    <div class="adopted-notice">
+                        This pet has already been given for adoption.
+                    </div>
+
+                {% elif not user.is_authenticated %}
+                    <div class="alert alert-info" style="text-align: center;">
+                        <a href="{% url 'login' %}?next={% url 'post_detail' post.pk %}" style="color: inherit; font-weight: 600;">Login</a> to request adoption.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

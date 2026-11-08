@@ -1090,3 +1090,106 @@ footer {
     color: var(--text-muted);
 }
 
+
+/* Additional badge variants */
+.badge-open {
+    background-color: var(--badge-available);
+    color: var(--badge-available-text);
+}
+
+.badge-given {
+    background-color: var(--badge-adopted);
+    color: var(--badge-adopted-text);
+}
+
+.badge-contacted {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+[data-theme="dark"] .badge-contacted {
+    background-color: #1e3a5f;
+    color: #93c5fd;
+}
+
+/* Form control for select/input from Django default rendering */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+select,
+textarea {
+    background-color: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text);
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    width: 100%;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-family: inherit;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 3px rgba(64,145,108,0.15);
+}
+
+input[type="file"] {
+    color: var(--text);
+    font-size: 0.875rem;
+    padding: 0.4rem 0;
+    width: 100%;
+}
+
+/* Profile responsive fix */
+@media (max-width: 768px) {
+    .profile-layout {
+        grid-template-columns: 1fr;
+    }
+
+    [style*="grid-template-columns: 280px 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* Mobile grid 2-col to 1-col */
+@media (max-width: 600px) {
+    [style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+    [style*="grid-template-columns: auto 1fr auto"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* Inquiry card contact highlight */
+.contact-highlight {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.75rem;
+}
+
+/* Post detail status banner */
+.status-banner-given {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    color: #065f46;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+[data-theme="dark"] .status-banner-given {
+    background: linear-gradient(135deg, #064e3b, #065f46);
+    color: #6ee7b7;
+}

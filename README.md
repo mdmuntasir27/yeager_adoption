@@ -1,55 +1,76 @@
 # Yeager Adoption
 
-A Django-based pet adoption and rescue platform where users can browse pets available for adoption, submit adoption requests, and manage their applications. Administrators can manage the entire system through the Django admin panel.
+A Django-based pet adoption and rescue platform where users can browse foundation pets available for adoption, submit adoption requests, and post their own pets for rehoming through a community board. Administrators manage the foundation pets and requests through the Django admin panel.
 
 ## Features
 
-### User Features
+### User Authentication
 
-**Authentication**
-- User registration with email
+- Register with username, full name, email, phone number, and password
 - Login and logout
-- Profile page with adoption history and favorites
+- Profile page with adoption history, community posts, and favorites
+- Edit profile including phone number, bio, and location
 
-**Pet Browsing**
-- Browse all available and adopted pets
-- View pet name, image, animal type, breed, age, gender, location, description, and adoption status
-- Search pets by name, breed, or type
+### Foundation Pet Browsing (Yeager Adoption Managed Pets)
+
+- Browse all foundation pets with name, image, type, breed, age, gender, location, description, and status
+- Search by name, breed, or type
 - Filter by animal type, gender, location, and adoption status
-- Paginated pet listings (9 per page)
+- Paginated listings (9 per page)
+- Favorite pets with one click
 
-**Pet Details**
-- Dedicated detail page for each pet
-- Full information display
-- Adoption application button (only shown for available pets)
+### Adoption Requests (Foundation Pets)
 
-**Adoption Requests**
-- Logged-in users can apply to adopt available pets
-- Application includes address, phone, reason for adoption, previous pet experience, and optional message
-- Dashboard showing all personal adoption requests with their current status
+- Logged-in users can apply to adopt available foundation pets
+- Application includes address, phone, reason, previous pet experience, and optional message
+- Dashboard showing all personal adoption requests with status (Pending / Approved / Rejected)
 
-**Favorites**
-- Users can save pets to a favorites list
-- Toggle favorites directly from the pet list or detail page
-- View favorites from the profile page
+### Community Adoption Board
+
+Users can post their own pets that need rehoming, and other users can browse these community posts and reach out.
+
+**Posting a pet:**
+- Post pet name, animal type, breed, age, gender, location, description, and an optional photo
+- Posts are visible to all visitors
+- Authors can edit, delete, or mark a post as "Given for Adoption"
+
+**Requesting a community pet:**
+- Logged-in users can send an adoption request to any open post (not their own)
+- Request includes a message, phone number, and address
+- One request per user per post
+
+**Managing requests (post author):**
+- Authors see all requests on a dedicated inquiries page
+- Full contact info is shown: requester phone, email, and address
+- Authors can update request status: Pending, Contacted, or Rejected
+- Authors can visit a requester's public profile to learn more about them
+
+**Public profiles:**
+- Any logged-in user can view another user's public profile
+- Shows name, location, bio, phone number, email, and active posts
+- Contact info is only visible to logged-in users
+
+**Post lifecycle:**
+- Mark a post as "Given for Adoption" to close it without deleting it
+- Or delete the post outright (this removes all associated requests too)
 
 ### Admin Features
 
 Managed entirely through the Django admin panel at `/admin/`
 
-- Add, edit, delete, and manage pets
-- Upload pet images
-- Change adoption status
-- View all adoption requests
-- Approve or reject adoption requests
-- When an application is approved, the pet's status automatically changes to Adopted
+- Add, edit, delete, and manage foundation pets
+- Upload pet images and change adoption status
+- View and manage all foundation adoption requests
+- Approve or reject requests (approved requests auto-mark the pet as Adopted)
+- Manage community posts and inquiries
 
 ### Business Logic
 
-- Only pets with status "Available" can receive new adoption requests
-- A user cannot submit more than one active (Pending or Approved) request for the same pet
-- When an adoption request is approved, the pet is automatically marked as Adopted
-- Further applications for an adopted pet are blocked
+- Only foundation pets with status "Available" can receive new adoption requests
+- A user cannot submit more than one active (Pending or Approved) request for the same foundation pet
+- When a foundation adoption request is approved, the pet is automatically marked as Adopted
+- A user cannot submit an inquiry for their own community post
+- A user can only submit one inquiry per community post
 
 ### REST API
 
@@ -90,7 +111,7 @@ GET /api/pets/?page=2
 POST /api/auth/token/
 ```
 
-Send username and password in the request body. Use the returned token in subsequent requests as a header:
+Send username and password in the request body. Use the returned token in subsequent requests:
 
 ```
 Authorization: Token <your-token>
@@ -142,17 +163,20 @@ Open your browser and go to `http://127.0.0.1:8000/`
 
 The admin panel is available at `http://127.0.0.1:8000/admin/`
 
+The community board is at `http://127.0.0.1:8000/community/`
+
 ## Project Structure
 
 ```
 yeager_adoption/
-    accounts/           User authentication and profiles
-    adoptions/          Adoption requests and forms
-    pets/               Pet listings, detail pages, favorites
+    accounts/           User authentication, profiles, and phone numbers
+    adoptions/          Foundation pet adoption requests
+    community/          Community adoption posts and inquiries
+    pets/               Foundation pet listings, detail pages, favorites
     yeager_adoption/    Project settings and main URLs
     templates/          HTML templates
     static/             CSS and JavaScript files
-    media/              Uploaded pet images
+    media/              Uploaded images
     manage.py
     requirements.txt
     README.md
@@ -164,12 +188,12 @@ All adoption fees are displayed in BDT (Bangladeshi Taka).
 
 ## Dark and Light Mode
 
-The UI supports both dark and light themes. The theme preference is saved in the browser and also respects the system preference automatically. Users can toggle between modes using the button in the navigation bar.
+The UI supports both dark and light themes. The preference is saved in the browser and also respects the system preference automatically. Users can toggle between modes using the button in the navigation bar.
 
 ## Notes
 
 - Migrations are included in the repository
-- The project uses Django's built-in User model for authentication
+- The project uses Django's built-in User model extended with a UserProfile model for phone, bio, and location
+- Phone numbers collected at registration are shown on public profiles to logged-in users for contact purposes
 - Token authentication is available for API consumers
-- Pet images are stored in the `media/pets/` directory
-
+- Pet and community post images are stored in the `media/` directory

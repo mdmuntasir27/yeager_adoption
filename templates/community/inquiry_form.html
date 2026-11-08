@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}Request Adoption - {{ post.pet_name }} | Yeager Adoption{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="mt-2 mb-2">
+        <a href="{% url 'post_detail' post.pk %}" style="color: var(--primary-light); text-decoration: none; font-size: 0.9rem;">
+            &larr; Back to {{ post.pet_name }}'s post
+        </a>
+    </div>
+
+    <div class="page-header">
+        <h1>Request Adoption</h1>
+        <p>Send your request to <strong>{{ post.author.username }}</strong> for <strong>{{ post.pet_name }}</strong></p>
+    </div>
+
+    <div class="adoption-layout">
+        <div class="card">
+            <div class="card-header">Your Request</div>
+            <div class="card-body">
+                <form method="post" class="form-stack">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label class="form-label">{{ form.message.label }}</label>
+                        {{ form.message }}
+                        {% if form.message.errors %}<ul class="errorlist">{% for e in form.message.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">{{ form.contact_phone.label }}</label>
+                        {{ form.contact_phone }}
+                        <small class="text-muted">The post owner will use this to contact you.</small>
+                        {% if form.contact_phone.errors %}<ul class="errorlist">{% for e in form.contact_phone.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">{{ form.contact_address.label }}</label>
+                        {{ form.contact_address }}
+                        {% if form.contact_address.errors %}<ul class="errorlist">{% for e in form.contact_address.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                    </div>
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-error">{{ form.non_field_errors }}</div>
+                    {% endif %}
+
+                    <button type="submit" class="btn btn-primary btn-block">Send Request</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Pet summary sidebar -->
+        <div>
+            <div class="card">
+                <div class="card-header">About {{ post.pet_name }}</div>
+                <div class="card-body">
+                    {% if post.image %}
+                        <img src="{{ post.image.url }}" alt="{{ post.pet_name }}" style="width: 100%; border-radius: 8px; margin-bottom: 1rem; max-height: 200px; object-fit: cover;">
+                    {% else %}
+                        <div style="text-align: center; font-size: 3rem; margin-bottom: 1rem;">
+                            {% if post.animal_type == 'Dog' %}🐕{% elif post.animal_type == 'Cat' %}🐈{% elif post.animal_type == 'Bird' %}🐦{% elif post.animal_type == 'Rabbit' %}🐇{% else %}🐾{% endif %}
+                        </div>
+                    {% endif %}
+                    <table class="info-table">
+                        <tr>
+                            <td>Name</td>
+                            <td><strong>{{ post.pet_name }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Type</td>
+                            <td>{{ post.animal_type }}</td>
+                        </tr>
+                        {% if post.breed %}
+                        <tr>
+                            <td>Breed</td>
+                            <td>{{ post.breed }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if post.age %}
+                        <tr>
+                            <td>Age</td>
+                            <td>{{ post.age }} yr{% if post.age != 1 %}s{% endif %}</td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <td>Location</td>
+                            <td>{{ post.location }}</td>
+                        </tr>
+                    </table>
+                    <hr class="divider">
+                    <div style="font-size: 0.82rem; color: var(--text-muted);">
+                        Your contact info will be shared with the post owner when you submit this request.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -13,40 +13,43 @@
 
             <div class="form-group">
                 <label class="form-label">Username</label>
-                <input type="text" name="username" class="form-control" placeholder="Choose a username"
-                    value="{{ form.username.value|default:'' }}" required>
+                {{ form.username }}
                 {% if form.username.errors %}<ul class="errorlist">{% for e in form.username.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
             </div>
 
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
                 <div class="form-group">
                     <label class="form-label">First Name</label>
-                    <input type="text" name="first_name" class="form-control" placeholder="First name"
-                        value="{{ form.first_name.value|default:'' }}">
+                    {{ form.first_name }}
                 </div>
                 <div class="form-group">
                     <label class="form-label">Last Name</label>
-                    <input type="text" name="last_name" class="form-control" placeholder="Last name"
-                        value="{{ form.last_name.value|default:'' }}">
+                    {{ form.last_name }}
                 </div>
             </div>
 
             <div class="form-group">
                 <label class="form-label">Email</label>
-                <input type="email" name="email" class="form-control" placeholder="your@email.com"
-                    value="{{ form.email.value|default:'' }}" required>
+                {{ form.email }}
                 {% if form.email.errors %}<ul class="errorlist">{% for e in form.email.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
             </div>
 
             <div class="form-group">
+                <label class="form-label">Phone Number</label>
+                {{ form.phone }}
+                <small class="text-muted">Used so other users can contact you about adoptions.</small>
+                {% if form.phone.errors %}<ul class="errorlist">{% for e in form.phone.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+
+            <div class="form-group">
                 <label class="form-label">Password</label>
-                <input type="password" name="password1" class="form-control" placeholder="Create a password" required>
+                {{ form.password1 }}
                 {% if form.password1.errors %}<ul class="errorlist">{% for e in form.password1.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
             </div>
 
             <div class="form-group">
                 <label class="form-label">Confirm Password</label>
-                <input type="password" name="password2" class="form-control" placeholder="Confirm your password" required>
+                {{ form.password2 }}
                 {% if form.password2.errors %}<ul class="errorlist">{% for e in form.password2.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
             </div>
 
@@ -60,10 +63,9 @@
         </form>
 
         <hr class="divider">
-        <p class="text-center text-muted" style="font-size:0.875rem;">
-            Already have an account? <a href="{% url 'login' %}" style="color:var(--primary-light);">Login here</a>
+        <p class="text-center text-muted" style="font-size: 0.875rem;">
+            Already have an account? <a href="{% url 'login' %}" style="color: var(--primary-light);">Login here</a>
         </p>
     </div>
 </div>
 {% endblock %}
-

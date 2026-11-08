@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Post - Yeager Adoption{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="max-width: 500px; margin: 3rem auto;">
+        <div class="card">
+            <div class="card-header" style="background: #fee2e2; color: #991b1b; border-color: #fca5a5;">
+                Confirm Deletion
+            </div>
+            <div class="card-body">
+                <p style="margin-bottom: 1rem;">
+                    Are you sure you want to delete the post for <strong>{{ post.pet_name }}</strong>?
+                    This will also remove all adoption requests for this post. This action cannot be undone.
+                </p>
+                {% if post.request_count > 0 %}
+                    <div class="alert alert-warning">
+                        This post has <strong>{{ post.request_count }}</strong> adoption request{% if post.request_count != 1 %}s{% endif %} that will also be deleted.
+                    </div>
+                {% endif %}
+                <div class="d-flex gap-1 mt-2">
+                    <form method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Yes, Delete Post</button>
+                    </form>
+                    <a href="{% url 'post_detail' post.pk %}" class="btn" style="background: var(--border); color: var(--text);">
+                        Cancel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
